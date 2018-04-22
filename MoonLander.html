@@ -15,16 +15,24 @@
     var G = 200;
 
     var dt = anterior = 0;
-    var sprites = [];
     var pc = new Sprite();
-    sprites.push(pc);
 
-    for( var e = 0; e < 3; e++){
-      var enemy = new Sprite();
-      enemy.x = 200-400*Math.random();
-      enemy.y = 100-200*Math.random();
-      sprites.push(enemy);
-    }
+    //Main Menu campos
+    var fontMainMenu = "30px Arial Black";
+    var wordsColor = "white";
+    var alignMainMenu = "center";
+    var stateMainMenu = 0;
+
+    /**************************************
+      *           Estados:
+      * 0 - Venceu;         //Pousou no ponto certo e com energia e será iniciada uma nova fase
+      * 1 - Perdeu;         //quando energia foi a zero ou o pouso foi em um local errado ou pousou com velocidade de pouso determinada
+      * 2 - Jogando;        //Durante a partida
+      * 3 - Menu;           //Main menu tem duas opções: "new game" e "quit";
+      * 4 - Game over;      //Exibe uma mensagem de game over na tela
+      * 5 - Fechado;        //Tela preta
+      ***************************************/
+
 
     function limparTela() {
       ctx.fillStyle = "black";
@@ -33,22 +41,7 @@
 
     function passo(t) {
       dt = (t - anterior)/1000;
-      for (var i = 0; i < sprites.length; i++) {
-        if(i>0) {
-          sprites[i].perseguir(pc);
-        }
 
-        if(i > 0 && pc.imunidade <=0 && pc.colidiuCom(sprites[i])){
-          pc.cor = 'red';
-          pc.x = 0;
-          pc.y = 0;
-          pc.vx = 0;
-          pc.vy = 0;
-          pc.imunidade = 3;
-        } else {
-          pc.cor = 'grey';
-        }
-      }
       pc.mover(dt);
       pc.impoeLimites(0,0, tela.width, tela.height);
 
