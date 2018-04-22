@@ -37,8 +37,7 @@
         if(i>0) {
           sprites[i].perseguir(pc);
         }
-        sprites[i].mover(dt);
-        sprites[i].impoeLimites(0,0, tela.width, tela.height);
+
         if(i > 0 && pc.imunidade <=0 && pc.colidiuCom(sprites[i])){
           pc.cor = 'red';
           pc.x = 0;
@@ -50,11 +49,12 @@
           pc.cor = 'grey';
         }
       }
+      pc.mover(dt);
+      pc.impoeLimites(0,0, tela.width, tela.height);
 
       limparTela();
-      for (var i = 0; i < sprites.length; i++) {
-        sprites[i].desenhar(ctx);
-      }
+      pc.desenhar(ctx);
+
       anterior = t;
       requestAnimationFrame(passo);
     }
@@ -70,7 +70,7 @@
           pc.ax = +100;
           break;
         case 38:
-          pc.vy = pc.vy-200;
+          pc.ay = -400;
           break;
         case 40:
           pc.ay = +100;
