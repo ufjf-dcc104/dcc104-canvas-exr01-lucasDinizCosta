@@ -15,7 +15,12 @@
     var G = 200;
 
     var dt = anterior = 0;
-    var pc = new Sprite();
+    var player = new Sprite();
+    var estado = 3;
+    var pontuacao = 0;
+    var vidas = 3;
+    var energia = 100;
+    var melhorPontuacao = 0;
 
     //Main Menu campos
     var fontMainMenu = "30px Arial Black";
@@ -42,11 +47,67 @@
     function passo(t) {
       dt = (t - anterior)/1000;
 
-      pc.mover(dt);
-      pc.impoeLimites(0,0, tela.width, tela.height);
 
-      limparTela();
-      pc.desenhar(ctx);
+      switch (estado) {
+        case 0:
+
+          break;
+        case 1:
+
+          break;
+        case 2:
+
+        player.mover(dt);
+        player.impoeLimites(0,0, tela.width, tela.height);
+
+        limparTela();
+        player.desenhar(ctx);
+
+          break;
+        case 3:         //Main menu
+        limparTela();
+        ctx.fillStyle = wordsColor;
+        ctx.textAlign = alignMainMenu;
+        ctx.font = "40px Arial Black";
+        ctx.fillText("Moon Lander", tela.width/2, tela.height/3);
+        ctx.font = "15px Arial Black";
+        ctx.fillText("Hi-Score: "+ melhorPontuacao,  tela.width/2, tela.height/2 + tela.height/3 + 30);
+
+        ctx.font = fontMainMenu;
+
+        if(stateMainMenu == 0){
+          ctx.fillStyle = "blue";
+          ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+          ctx.fillStyle = wordsColor;
+          ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+        }
+        else{
+          ctx.fillStyle = wordsColor;
+          ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+          ctx.fillStyle = "blue";
+          ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+        }
+          break;
+        case 4:
+        limparTela();
+        ctx.fillStyle = "white";
+        ctx.textAlign = alignMainMenu;
+        ctx.font = "40px Arial Black";
+        ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
+        if(timeAuxGameOver < 5){
+            //console.log("teste");
+            timeAuxGameOver++;
+        }
+        else{
+            estado = 3;
+        }
+          break;
+        case 5:
+          limparTela();
+          break;
+        default:
+
+      }
 
       anterior = t;
       requestAnimationFrame(passo);
@@ -55,31 +116,75 @@
     requestAnimationFrame(passo);
 
     addEventListener("keydown", function(e){
-      switch (e.keyCode) {
-        case 37:
-          pc.ax = -100;
-          break;
-        case 39:
-          pc.ax = +100;
-          break;
-        case 38:
-          pc.ay = -400;
-          break;
-        case 40:
-          pc.ay = +100;
-          break;
-        default:
+      console.log(e.keyCode);
+      if (estado != 3) {
+        switch (e.keyCode) {
+          case 37:
+            player.ax = -100;
+            break;
+          case 39:
+            player.ax = +100;
+            break;
+          case 38:
+            player.ay = -400;
+            break;
+          case 40:
+            player.ay = +100;
+            break;
+          case 27:      //Pressionar o Esq
+            stateMainMenu = 0;
+            estado = 3;
+            break;
+          default:
+        }
       }
+      else{
+        switch (e.keyCode) {
+          case 13:    //Enter
+            if(stateMainMenu == 0){
+              estado = 2;
+            }
+            else{
+              estado = 5;
+            }
+            break;
+          case 32:         //Space bar
+            if(stateMainMenu == 0){
+              estado = 2;
+            }
+            else{
+              estado = 5;
+            }
+            break;
+          case 38:
+            if(stateMainMenu == 1){
+              stateMainMenu = 0;
+            }
+            break;
+          case 40:
+            if(stateMainMenu == 0){
+              stateMainMenu = 1;
+            }
+            break;
+          case 27:      //Pressionar o Esq
+            stateMainMenu = 0;
+            estado = 3;
+            break;
+          default:
+
+        }
+      }
+
     });
     addEventListener("keyup", function(e){
       switch (e.keyCode) {
         case 37:
         case 39:
-          pc.ax = 0;
+          player.ax = 0;
           break;
         case 38:
         case 40:
-          pc.ay = 0;
+          player.ay = 0;
           break;
         default:
       }
