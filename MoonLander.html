@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Moon Lander</title>
     <script src="sprite.js"></script>
+    <script src="spaceship.js"></script>
   </head>
   <body>
     <h1>Moon Lander</h1>
@@ -15,12 +16,35 @@
     var G = 200;
 
     var dt = anterior = 0;
-    var player = new Sprite();
-    var estado = 3;
-    var pontuacao = 0;
-    var vidas = 3;
-    var energia = 100;
+    var player = new Spaceship();
+    player.x = tela.width/2 -15;
+    player.y = 15;
+    var estado = 2;
+
     var melhorPontuacao = 0;
+    var estadoJogada = false;     //Se perdeu ou não
+    var tempoInicoPartida = 10;   //Tempo até o objeto começar a cair
+
+    //Plataformas
+    var chao = new Sprite();
+    var plataforma = new Sprite();
+
+    //Energia
+    var energiaRectExt = new Sprite();
+    var energiaRectInt = new Sprite();
+    energiaRectExt.w = 100;
+    energiaRectExt.y = 20;
+    energiaRectExt.colorBG = "black";
+    energiaRectExt.colorBorder = "white";
+    energiaRectExt.x = 8;
+    energiaRectExt.y = 32;
+    energiaRectInt.w = 98;
+    energiaRectInt.h = 13;
+    energiaRectInt.x = 9;
+    energiaRectInt.y = 33;
+    energiaRectInt.colorBG = "green";
+    energiaRectInt.borderSize = 0;
+
 
     //Main Menu campos
     var fontMainMenu = "30px Arial Black";
@@ -39,11 +63,6 @@
       ***************************************/
 
 
-    function limparTela() {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0,0, tela.width, tela.height);
-    }
-
     function passo(t) {
       dt = (t - anterior)/1000;
 
@@ -56,12 +75,36 @@
 
           break;
         case 2:
-
+        chao.x = 0;
+        chao.y = tela.height - 15;
+        chao.w = tela.width;
+        plataforma.x = tela.width/3;
+        plataforma.y = tela.height - 15;
+        plataforma.w = 50;
+        plataforma.colorBG = "blue";
+        if(player.colidiuCom(chao)){
+          player.y = chao.y;
+          player.vy = 0;
+          player.vx = 0;
+          player.vento = 0;
+        }
         player.mover(dt);
         player.impoeLimites(0,0, tela.width, tela.height);
-
         limparTela();
         player.desenhar(ctx);
+        chao.desenhar(ctx);
+        plataforma.desenhar(ctx);
+        ctx.font = "20px Arial Black";
+        ctx.fillStyle = "white";
+        ctx.textAlign = alignMainMenu;
+        ctx.fillText("Energia: ", 55,20);
+        ctx.fillText("Pontos: ", tela.width - 105,50);
+        ctx.fillText(player.pontos, tela.width - 30, 50);
+        ctx.fillText("Vidas:  "+ player.vidas, tela.width - 70, 20);
+        energiaRectExt.desenhar(ctx);
+        energiaRectInt.desenhar(ctx);
+        if(energiaRectInt.w >= 0)
+        energiaRectInt.w = energiaRectInt.w-0.1;
 
           break;
         case 3:         //Main menu
@@ -72,7 +115,6 @@
         ctx.fillText("Moon Lander", tela.width/2, tela.height/3);
         ctx.font = "15px Arial Black";
         ctx.fillText("Hi-Score: "+ melhorPontuacao,  tela.width/2, tela.height/2 + tela.height/3 + 30);
-
         ctx.font = fontMainMenu;
 
         if(stateMainMenu == 0){
@@ -114,6 +156,12 @@
     }
 
     requestAnimationFrame(passo);
+
+    function limparTela() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0,0, tela.width, tela.height);
+    }
+
 
     addEventListener("keydown", function(e){
       console.log(e.keyCode);
