@@ -18,12 +18,12 @@
     var dt = anterior = 0;
     var player = new Spaceship();
     player.x = tela.width/2 -15;
-    player.y = 15;
+    player.y = player.h;
     var estado = 2;
 
     var melhorPontuacao = 0;
     var estadoJogada = false;     //Se perdeu ou não
-    var tempoInicoPartida = 10;   //Tempo até o objeto começar a cair
+    var tempoInicoPartida = 5;   //Tempo até o objeto começar a cair
 
     //Plataformas
     var chao = new Sprite();
@@ -75,25 +75,7 @@
 
           break;
         case 2:
-        chao.x = 0;
-        chao.y = tela.height - 15;
-        chao.w = tela.width;
-        plataforma.x = tela.width/3;
-        plataforma.y = tela.height - 15;
-        plataforma.w = 50;
-        plataforma.colorBG = "blue";
-        if(player.colidiuCom(chao)){
-          player.y = chao.y;
-          player.vy = 0;
-          player.vx = 0;
-          player.vento = 0;
-        }
-        player.mover(dt);
-        player.impoeLimites(0,0, tela.width, tela.height);
         limparTela();
-        player.desenhar(ctx);
-        chao.desenhar(ctx);
-        plataforma.desenhar(ctx);
         ctx.font = "20px Arial Black";
         ctx.fillStyle = "white";
         ctx.textAlign = alignMainMenu;
@@ -101,10 +83,40 @@
         ctx.fillText("Pontos: ", tela.width - 105,50);
         ctx.fillText(player.pontos, tela.width - 30, 50);
         ctx.fillText("Vidas:  "+ player.vidas, tela.width - 70, 20);
+        chao.x = 0;
+        chao.y = tela.height - 15;
+        chao.w = tela.width;
+        plataforma.x = tela.width/3;
+        plataforma.y = tela.height - 15;
+        plataforma.w = 50;
+        plataforma.colorBG = "blue";
+        if(tempoInicoPartida > 0){
+          ctx.font = "30px Arial Black";
+          ctx.fillText(Math.ceil(tempoInicoPartida), tela.width/2, tela.height/2);    //Arredonda pro maior inteiro
+          tempoInicoPartida = tempoInicoPartida - 0.02;
+
+        }
+        else{
+          if(player.colidiuCom(chao)){
+            player.y = chao.y;
+            player.vy = 0;
+            player.vx = 0;
+            player.vento = 0;
+          }
+          player.mover(dt);
+          player.impoeLimites(0,0, tela.width, tela.height);
+
+
+          if(energiaRectInt.w >= 0)
+          energiaRectInt.w = energiaRectInt.w-0.3;
+        }
+        player.desenhar(ctx);
+        chao.desenhar(ctx);
+        plataforma.desenhar(ctx);
+
         energiaRectExt.desenhar(ctx);
         energiaRectInt.desenhar(ctx);
-        if(energiaRectInt.w >= 0)
-        energiaRectInt.w = energiaRectInt.w-0.1;
+
 
           break;
         case 3:         //Main menu
