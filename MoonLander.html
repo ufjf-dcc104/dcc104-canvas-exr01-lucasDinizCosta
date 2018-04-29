@@ -11,6 +11,7 @@
     <canvas width="480" height="320">
     Seu browser não suporta canvas!</canvas>
     <script>
+	var teste = 0;
     var tela = document.getElementsByTagName("canvas")[0];
     var ctx = tela.getContext("2d");
     var G = 200;
@@ -19,11 +20,12 @@
     var player = new Spaceship();
     player.x = tela.width/2 -15;
     player.y = player.h;
-    var estado = 2;
+    var estado = 3;
 
     var melhorPontuacao = 0;
     var estadoJogada = false;     //Se perdeu ou não
     var tempoInicoPartida = 5;   //Tempo até o objeto começar a cair
+    var tempoGameOver = 5;
 
     //Plataformas
     var chao = new Sprite();
@@ -52,7 +54,7 @@
     var alignMainMenu = "center";
     var stateMainMenu = 0;
 
-    /**************************************
+    /**************************************************
       *           Estados:
       * 0 - Venceu;         //Pousou no ponto certo e com energia e será iniciada uma nova fase
       * 1 - Perdeu;         //quando energia foi a zero ou o pouso foi em um local errado ou pousou com velocidade de pouso determinada
@@ -60,7 +62,7 @@
       * 3 - Menu;           //Main menu tem duas opções: "new game" e "quit";
       * 4 - Game over;      //Exibe uma mensagem de game over na tela
       * 5 - Fechado;        //Tela preta
-      ***************************************/
+      ***************************************************/
 
 
     function passo(t) {
@@ -103,20 +105,18 @@
             player.vx = 0;
             player.vento = 0;
           }
-          player.mover(dt);
+          if(teste === 0) player.mover(dt);
           player.impoeLimites(0,0, tela.width, tela.height);
 
 
           if(energiaRectInt.w >= 0)
-          energiaRectInt.w = energiaRectInt.w-0.3;
+            energiaRectInt.w = energiaRectInt.w-5/100*(Math.abs(player.ay)+Math.abs(player.ax))*dt;
         }
         player.desenhar(ctx);
         chao.desenhar(ctx);
         plataforma.desenhar(ctx);
-
         energiaRectExt.desenhar(ctx);
         energiaRectInt.desenhar(ctx);
-
 
           break;
         case 3:         //Main menu
@@ -148,9 +148,9 @@
         ctx.textAlign = alignMainMenu;
         ctx.font = "40px Arial Black";
         ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
-        if(timeAuxGameOver < 5){
+        if(tempoGameOver >= 0){
             //console.log("teste");
-            timeAuxGameOver++;
+            tempoGameOver = tempoGameOver - 0.02;
         }
         else{
             estado = 3;

@@ -32,7 +32,7 @@ Spaceship.prototype.desenhar = function (ctx) {
 
 Spaceship.prototype.mover = function (dt) {
 
-    this.vx = this.vx + this.ax*dt - this.vento*dt;
+    this.vx = this.vx + (this.ax - this.vento)*dt;
     this.vy = this.vy + (G+this.ay)*dt;
 
     this.x = this.x + this.vx*dt;
