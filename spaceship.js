@@ -12,8 +12,7 @@ function Spaceship() {
   this.vento = 50;
   this.pontos = 0;
   this.vidas = 3;
-  this.energia = 150;
-
+  this.energia = 100;
 }
 
 Spaceship.prototype.desenhar = function (ctx) {
@@ -62,7 +61,7 @@ Spaceship.prototype.impoeLimites = function(x, y, w, h){
 Spaceship.prototype.colidiuCom = function (alvo) {
   if(alvo.x+alvo.w < this.x) return false;
   if(alvo.x > this.x+this.w) return false;
-  if(alvo.y+alvo.h < this.y - this.h) return false;
+  if(alvo.y+alvo.h < this.y) return false;
   if(alvo.y > this.y) return false;
   return true;
 };

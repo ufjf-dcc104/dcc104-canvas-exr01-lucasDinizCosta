@@ -9,22 +9,20 @@
   <body>
     <h1>Moon Lander</h1>
     <canvas width="480" height="320">
-    Seu browser não suporta canvas!</canvas>
+      Seu browser não suporta canvas!</canvas>
     <script>
-	var teste = 0;
+
     var tela = document.getElementsByTagName("canvas")[0];
     var ctx = tela.getContext("2d");
     var G = 200;
 
     var dt = anterior = 0;
     var player = new Spaceship();
-    player.x = tela.width/2 -15;
-    player.y = player.h;
     var estado = 3;
 
     var melhorPontuacao = 0;
-    var estadoJogada = false;     //Se perdeu ou não
-    var tempoInicoPartida = 5;   //Tempo até o objeto começar a cair
+    //var estadoJogada = false;     //Se perdeu ou não
+    var tempoInicioPartida = 5;   //Tempo até o objeto começar a cair
     var tempoGameOver = 5;
 
     //Plataformas
@@ -34,13 +32,13 @@
     //Energia
     var energiaRectExt = new Sprite();
     var energiaRectInt = new Sprite();
-    energiaRectExt.w = 100;
+    energiaRectExt.w = 102;
     energiaRectExt.y = 20;
     energiaRectExt.colorBG = "black";
     energiaRectExt.colorBorder = "white";
     energiaRectExt.x = 8;
     energiaRectExt.y = 32;
-    energiaRectInt.w = 98;
+    energiaRectInt.w = 100;
     energiaRectInt.h = 13;
     energiaRectInt.x = 9;
     energiaRectInt.y = 33;
@@ -74,7 +72,12 @@
 
           break;
         case 1:
-
+          player.x = tela.width/2 -15;
+          player.y = player.h;
+          tempoInicioPartida = 5;
+          energiaRectInt.w = 100;
+          player.energia = 100;
+          estado = 2;
           break;
         case 2:
         limparTela();
@@ -92,26 +95,116 @@
         plataforma.y = tela.height - 15;
         plataforma.w = 50;
         plataforma.colorBG = "blue";
-        if(tempoInicoPartida > 0){
+        if(tempoInicioPartida > 0){
           ctx.font = "30px Arial Black";
-          ctx.fillText(Math.ceil(tempoInicoPartida), tela.width/2, tela.height/2);    //Arredonda pro maior inteiro
-          tempoInicoPartida = tempoInicoPartida - 0.02;
+          ctx.fillText(Math.ceil(tempoInicioPartida), tela.width/2, tela.height/2);    //Arredonda pro maior inteiro
+          tempoInicioPartida = tempoInicioPartida - 0.7*dt;
 
         }
         else{
-          if(player.colidiuCom(chao)){
-            player.y = chao.y;
-            player.vy = 0;
-            player.vx = 0;
-            player.vento = 0;
+          if(player.energia <= 0.1){
+            if(player.vidas == 0){
+              player.vidas = 3;
+              if(player.pontos > melhorPontuacao){
+                melhorPontuacao = player.pontos;
+              }
+              //melhorPontuacao = 300;
+              //console.log(melhorPontuacao);
+              player.pontos = 0;
+              estado = 4;
+            }
+            else{
+              player.vidas = player.vidas - 1;
+              estado = 1;
+            }
           }
-          if(teste === 0) player.mover(dt);
-          player.impoeLimites(0,0, tela.width, tela.height);
+          else{     //Com energia
+            if(player.colidiuCom(chao) && player.colidiuCom(plataforma)){
+              console.log("teste");
+              player.y = chao.y;
+              var velResultante = Math.pow(Math.pow(player.vx,2) + Math.pow(player.vy,2), 0.5);
+              player.vy = 0;
+              player.vx = 0;
+              if(velResultante>100){
+                console.log("A sua nave explodiu!!!");
+                if(player.vidas == 0){
+                  player.vidas = 3;
+                  if(player.pontos > melhorPontuacao){
+                    melhorPontuacao = player.pontos;
+                  }
+                  player.pontos = 0;
+                  estado = 4;
+                }
+                else{
+                  player.vidas = player.vidas - 1;
+                  estado = 1;
+                }
+              }
+              else{
+                if(player.x >= plataforma.x && player.x + player.w < plataforma.x + plataforma.w){
+
+                }
+                else{
+                  console.log("Pouso incorreto");
+                  if(player.vidas == 0){
+                    player.vidas = 3;
+                    if(player.pontos > melhorPontuacao){
+                      melhorPontuacao = player.pontos;
+                    }
+                    //melhorPontuacao = 300;
+                    //console.log(melhorPontuacao);
+                    player.pontos = 0;
+                    estado = 4;
+                  }
+                  else{
+                    player.vidas = player.vidas - 1;
+                    estado = 1;
+                  }
+
+                }
+              }
+            }
+            else{
+              if(player.colidiuCom(chao)){
+                player.y = chao.y;
+                //player.vento = 0;
+                player.vy = 0;
+                player.vx = 0;
+                if(player.vidas == 0){
+                  player.vidas = 3;
+                  if(player.pontos > melhorPontuacao){
+                    melhorPontuacao = player.pontos;
+                  }
+                  //melhorPontuacao = 300;
+                  //console.log(melhorPontuacao);
+                  player.pontos = 0;
+                  estado = 4;
+                }
+                else{
+                  player.vidas = player.vidas - 1;
+                  estado = 1;
+                }
+              }
+
+              //console.log(velResultante);
+              //player.vento = 0;
 
 
-          if(energiaRectInt.w >= 0)
-            energiaRectInt.w = energiaRectInt.w-5/100*(Math.abs(player.ay)+Math.abs(player.ax))*dt;
+
+            }
+
+            player.mover(dt);
+            player.impoeLimites(0,0, tela.width, tela.height);
+          }
+
         }
+
+        if(energiaRectInt.w >= 0){
+          energiaRectInt.w = energiaRectInt.w - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;       ///Associa a mudança de energia as acelerações e oscilações em função do fps
+          player.energia = player.energia - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;
+        }
+
+
         player.desenhar(ctx);
         chao.desenhar(ctx);
         plataforma.desenhar(ctx);
@@ -142,7 +235,9 @@
           ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
         }
           break;
+
         case 4:
+
         limparTela();
         ctx.fillStyle = "white";
         ctx.textAlign = alignMainMenu;
@@ -150,7 +245,7 @@
         ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
         if(tempoGameOver >= 0){
             //console.log("teste");
-            tempoGameOver = tempoGameOver - 0.02;
+            tempoGameOver = tempoGameOver - 2*dt;
         }
         else{
             estado = 3;
@@ -202,7 +297,7 @@
         switch (e.keyCode) {
           case 13:    //Enter
             if(stateMainMenu == 0){
-              estado = 2;
+              estado = 1;
             }
             else{
               estado = 5;
@@ -210,7 +305,7 @@
             break;
           case 32:         //Space bar
             if(stateMainMenu == 0){
-              estado = 2;
+              estado = 1;
             }
             else{
               estado = 5;
