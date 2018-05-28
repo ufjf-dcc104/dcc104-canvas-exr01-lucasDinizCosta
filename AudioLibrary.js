@@ -71,7 +71,7 @@ AudioLibrary.prototype.isPaused = function (key) {         //retorna se o audio 
       return false;
     }
   }
-  return true;
+  return true;                                            //Audio não foi iniciado
 };
 
 AudioLibrary.prototype.stop = function (key) {            //parar de executar o áudio removendo do canal
@@ -85,7 +85,7 @@ AudioLibrary.prototype.stop = function (key) {            //parar de executar o 
       break;
     }
   }
-  return true;
+  return true;                                          //Audio não foi iniciado
 };
 
 AudioLibrary.prototype.isEnded = function (key) {       //Se o audio terminou de ser executado
@@ -98,9 +98,17 @@ AudioLibrary.prototype.isEnded = function (key) {       //Se o audio terminou de
       return false;
     }
   }
-  return true;
+  return true;                                            //Audio não foi iniciado
 };
 
-AudioLibrary.prototype.duration = function (key) {      //tempo de duração do audio
+AudioLibrary.prototype.duration = function (key) {        //tempo de duração do audio
   return this.audios[key].duration;
+};
+
+AudioLibrary.prototype.currentTime = function (key) {      //tempo até onde o audio foi executado
+  for (var i = 0; i < this.canais.length; i++) {
+    if(this.canais[i].audio.src == this.audios[key].src){
+      return this.canais[i].audio.currentTime;
+    }
+  }
 };
