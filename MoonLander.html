@@ -269,10 +269,11 @@
             ctx.strokeText("GAME OVER", tela.width/2, tela.height/2);
             ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
             if(tempoGameOver >= 0){
-                tempoGameOver = tempoGameOver - 0.7*dt;
+              tempoGameOver = tempoGameOver - 0.7*dt;
             }
             else{
-                estado = 3;
+              tempoGameOver = 5;
+              estado = 3;
             }
 
             break;
