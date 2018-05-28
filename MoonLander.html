@@ -5,6 +5,8 @@
     <title>Moon Lander</title>
     <script src="sprite.js"></script>
     <script src="spaceship.js"></script>
+    <script src="ImageLibrary.js" charset="utf-8"></script>
+    <script src="AudioLibrary.js" charset="utf-8"></script>
   </head>
   <body>
     <h1>Moon Lander</h1>
@@ -29,6 +31,14 @@
     //Plataformas
     var chao = new Sprite();
     var plataforma = new Sprite();
+
+    var imageLibrary = new ImageLibrary();
+    imageLibrary.load("menu", "menu.jpg");
+    imageLibrary.load("fundo-fase", "fundo-fase.jpg");
+    imageLibrary.load("player-ship", "player_ship.png");
+
+    var audioLibrary = new AudioLibrary();
+    audioLibrary.load("rocket-Thrusters","Rocket-Thrusters.mp3");
 
     //Energia
     var energiaRectExt = new Sprite();
@@ -67,91 +77,84 @@
       * 5 - Fechado;        //Tela preta
       ***************************************************/
 
-
     function passo(t) {
       dt = (t - anterior)/1000;
+      if(imageLibrary.loaded+audioLibrary.loaded<imageLibrary.size+audioLibrary.size) {//if(il.loaded+al.loaded<il.size+al.size) {
+        //ctx.fillStyle = "white";
+        //ctx.fillText("Carregando imagens e audio... "+(100*(il.loaded+al.loaded)/(il.size+al.loaded)).toFixed(2)+"%", 20, 100);
+        console.log("Carregando imagens e audio... "+(100*(imageLibrary.loaded+audioLibrary.loaded)/(imageLibrary.size+audioLibrary.size)).toFixed(2)+"%", 20, 100);
+        console.log("Não terminou de carregar...");
+        //return;
+      }
+      else{
+        switch (estado) {
+          case 0:
+            posicaoRandPlataforma = Math.floor(Math.random() * (tela.width - plataforma.w));
+            player.pontos = player.pontos + 100 + Math.ceil(player.energia);
 
+            estado = 1;
 
-      switch (estado) {
-        case 0:
-          posicaoRandPlataforma = Math.floor(Math.random() * (tela.width - plataforma.w));
-          player.pontos = player.pontos + 100 + Math.ceil(player.energia);
+            break;
+          case 1:
+            player.x = tela.width/2 -15;
+            player.y = 0;
+            player.ligado = false;
+            tempoInicioPartida = 5;
+            energiaRectInt.w = 100;
+            player.energia = 100;
 
-          estado = 1;
+            estado = 2;
+            break;
+          case 2:
+            limparTela();
+            imageLibrary.drawSize(ctx, "fundo-fase", 0, 0, tela.width, tela.height);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.font = "20px Arial Black";
+            ctx.fillStyle = "white";
+            ctx.textAlign = alignMainMenu;
+            ctx.strokeText("Energia: ", 55,20);
+            ctx.fillText("Energia: ", 55,20);
+            ctx.strokeText("Pontos: ", tela.width - 105,50);
+            ctx.fillText("Pontos: ", tela.width - 105,50);
+            ctx.strokeText(player.pontos, tela.width - 30, 50);
+            ctx.fillText(player.pontos, tela.width - 30, 50);
+            ctx.strokeText("Vidas:  "+ player.vidas, tela.width - 70, 20);
+            ctx.fillText("Vidas:  "+ player.vidas, tela.width - 70, 20);
+            chao.x = 0;
+            chao.y = tela.height - 15;
+            chao.w = tela.width;
+            plataforma.x = posicaoRandPlataforma;
+            plataforma.colorBG = "blue";
+            if(tempoInicioPartida > 0){
+              ctx.font = "30px Arial Black";
+              ctx.fillText(Math.ceil(tempoInicioPartida), tela.width/2, tela.height/2);    //Arredonda pro maior inteiro
+              tempoInicioPartida = tempoInicioPartida - 0.7*dt;
 
-          break;
-        case 1:
-          player.x = tela.width/2 -15;
-          player.y = player.h;
-          tempoInicioPartida = 5;
-          energiaRectInt.w = 100;
-          player.energia = 100;
-
-          estado = 2;
-          break;
-        case 2:
-          limparTela();
-          ctx.font = "20px Arial Black";
-          ctx.fillStyle = "white";
-          ctx.textAlign = alignMainMenu;
-          ctx.fillText("Energia: ", 55,20);
-          ctx.fillText("Pontos: ", tela.width - 105,50);
-          ctx.fillText(player.pontos, tela.width - 30, 50);
-          ctx.fillText("Vidas:  "+ player.vidas, tela.width - 70, 20);
-          chao.x = 0;
-          chao.y = tela.height - 15;
-          chao.w = tela.width;
-          plataforma.x = posicaoRandPlataforma;
-          plataforma.colorBG = "blue";
-          if(tempoInicioPartida > 0){
-            ctx.font = "30px Arial Black";
-            ctx.fillText(Math.ceil(tempoInicioPartida), tela.width/2, tela.height/2);    //Arredonda pro maior inteiro
-            tempoInicioPartida = tempoInicioPartida - 0.7*dt;
-
-          }
-          else{
-            if(player.energia <= 0.1){    //Energia ruim
-              if(player.vidas == 0){
-                player.vidas = 3;
-                if(player.pontos > melhorPontuacao){
-                  melhorPontuacao = player.pontos;
-                }
-                player.pontos = 0;
-                estado = 4;
-              }
-              else{
-                player.vidas = player.vidas - 1;
-                estado = 1;
-              }
             }
-            else{     //Com energia
-              if(player.colidiuCom(chao) && player.colidiuCom(plataforma)){
-                console.log("teste");
-                player.y = chao.y;
-                var velResultante = Math.pow(Math.pow(player.vx,2) + Math.pow(player.vy,2), 0.5);
-                player.vy = 0;
-                player.vx = 0;
-                if(velResultante>100){
-                  console.log("A sua nave explodiu!!!");
-                  if(player.vidas == 0){
-                    player.vidas = 3;
-                    if(player.pontos > melhorPontuacao){
-                      melhorPontuacao = player.pontos;
-                    }
-                    player.pontos = 0;
-                    estado = 4;
+            else{
+              if(player.energia <= 0.1){    //Energia ruim
+                if(player.vidas == 0){
+                  player.vidas = 3;
+                  if(player.pontos > melhorPontuacao){
+                    melhorPontuacao = player.pontos;
                   }
-                  else{
-                    player.vidas = player.vidas - 1;
-                    estado = 1;
-                  }
+                  player.pontos = 0;
+                  estado = 4;
                 }
                 else{
-                  if(player.x >= plataforma.x && player.x + player.w < plataforma.x + plataforma.w){
-                    estado = 0;
-                  }
-                  else{
-                    console.log("Pouso incorreto");
+                  player.vidas = player.vidas - 1;
+                  estado = 1;
+                }
+              }
+              else{     //Com energia
+                if(player.colidiuCom(chao) && player.colidiuCom(plataforma)){
+                  player.y = chao.y;
+                  var velResultante = Math.pow(Math.pow(player.vx,2) + Math.pow(player.vy,2), 0.5);
+                  player.vy = 0;
+                  player.vx = 0;
+                  if(velResultante>100){
+                    console.log("A sua nave explodiu!!!");
                     if(player.vidas == 0){
                       player.vidas = 3;
                       if(player.pontos > melhorPontuacao){
@@ -164,90 +167,122 @@
                       player.vidas = player.vidas - 1;
                       estado = 1;
                     }
-
-                  }
-                }
-              }
-              else{
-                if(player.colidiuCom(chao)){
-                  player.y = chao.y;
-                  player.vy = 0;
-                  player.vx = 0;
-                  if(player.vidas == 0){
-                    player.vidas = 3;
-                    if(player.pontos > melhorPontuacao){
-                      melhorPontuacao = player.pontos;
-                    }
-                    player.pontos = 0;
-                    estado = 4;
                   }
                   else{
-                    player.vidas = player.vidas - 1;
-                    estado = 1;
+                    if(player.x >= plataforma.x && player.x + player.w < plataforma.x + plataforma.w){
+                      estado = 0;
+                    }
+                    else{
+                      console.log("Pouso incorreto");
+                      if(player.vidas == 0){
+                        player.vidas = 3;
+                        if(player.pontos > melhorPontuacao){
+                          melhorPontuacao = player.pontos;
+                        }
+                        player.pontos = 0;
+                        estado = 4;
+                      }
+                      else{
+                        player.vidas = player.vidas - 1;
+                        estado = 1;
+                      }
+
+                    }
                   }
                 }
+                else{
+                  if(player.colidiuCom(chao)){
+                    player.y = chao.y;
+                    player.vy = 0;
+                    player.vx = 0;
+                    if(player.vidas == 0){
+                      player.vidas = 3;
+                      if(player.pontos > melhorPontuacao){
+                        melhorPontuacao = player.pontos;
+                      }
+                      player.pontos = 0;
+                      estado = 4;
+                    }
+                    else{
+                      player.vidas = player.vidas - 1;
+                      estado = 1;
+                    }
+                  }
+                }
+                player.mover(dt);
+                player.impoeLimites(0,0, tela.width, tela.height);
               }
-              player.mover(dt);
-              player.impoeLimites(0,0, tela.width, tela.height);
             }
-          }
 
-          if(energiaRectInt.w >= 0){
-            energiaRectInt.w = energiaRectInt.w - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;       ///Associa a mudança de energia as acelerações e oscilações em função do fps
-            player.energia = player.energia - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;
-          }
+            if(energiaRectInt.w >= 0){
+              energiaRectInt.w = energiaRectInt.w - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;       ///Associa a mudança de energia as acelerações e oscilações em função do fps
+              player.energia = player.energia - 5/100 * (Math.abs(player.ay) + Math.abs(player.ax)) * dt;
+            }
 
-          player.desenhar(ctx);
-          chao.desenhar(ctx);
-          plataforma.desenhar(ctx);
-          energiaRectExt.desenhar(ctx);
-          energiaRectInt.desenhar(ctx);
+            player.desenharImagem(ctx);
+            player.desenharFogoNave(ctx);
+            chao.desenhar(ctx);
+            plataforma.desenhar(ctx);
+            energiaRectExt.desenhar(ctx);
+            energiaRectInt.desenhar(ctx);
 
-          break;
-        case 3:         //Main menu
-          limparTela();
-          ctx.fillStyle = wordsColor;
-          ctx.textAlign = alignMainMenu;
-          ctx.font = "40px Arial Black";
-          ctx.fillText("Moon Lander", tela.width/2, tela.height/3);
-          ctx.font = "15px Arial Black";
-          ctx.fillText("Hi-Score: "+ melhorPontuacao,  tela.width/2, tela.height/2 + tela.height/3 + 30);
-          ctx.font = fontMainMenu;
-          if(stateMainMenu == 0){
-            ctx.fillStyle = "blue";
-            ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+            break;
+          case 3:         //Main menu
+            limparTela();
+            imageLibrary.drawSize(ctx, "menu", 0, 0, tela.width,tela.height);
             ctx.fillStyle = wordsColor;
-            ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
-          }
-          else{
-            ctx.fillStyle = wordsColor;
-            ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
-            ctx.fillStyle = "blue";
-            ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
-          }
+            ctx.textAlign = alignMainMenu;
+            ctx.font = "40px Arial Black";
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.strokeText("Moon Lander", tela.width/2, tela.height/3);
+            ctx.fillText("Moon Lander", tela.width/2, tela.height/3);
+            ctx.font = "15px Arial Black";
+            ctx.strokeText("Hi-Score: "+ melhorPontuacao,  tela.width/2, tela.height/2 + tela.height/3 + 30);
+            ctx.fillText("Hi-Score: "+ melhorPontuacao,  tela.width/2, tela.height/2 + tela.height/3 + 30);
+            ctx.font = fontMainMenu;
+            if(stateMainMenu == 0){
+              ctx.fillStyle = "blue";
+              ctx.strokeText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+              ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+              ctx.fillStyle = wordsColor;
+              ctx.strokeText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+              ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+            }
+            else{
+              ctx.fillStyle = wordsColor;
+              ctx.strokeText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+              ctx.fillText("New Game", tela.width/2, tela.height/2 + tela.height/4-15);
+              ctx.fillStyle = "blue";
+              ctx.strokeText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+              ctx.fillText("Quit", tela.width/2, tela.height/2 + tela.height/3);
+            }
 
-          break;
-        case 4:
-          limparTela();
-          ctx.fillStyle = "white";
-          ctx.textAlign = alignMainMenu;
-          ctx.font = "40px Arial Black";
-          ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
-          if(tempoGameOver >= 0){
-              tempoGameOver = tempoGameOver - 0.7*dt;
-          }
-          else{
-              estado = 3;
-          }
+            break;
+          case 4:
+            limparTela();
+            ctx.fillStyle = "white";
+            ctx.textAlign = alignMainMenu;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.font = "40px Arial Black";
+            ctx.strokeText("GAME OVER", tela.width/2, tela.height/2);
+            ctx.fillText("GAME OVER", tela.width/2, tela.height/2);
+            if(tempoGameOver >= 0){
+                tempoGameOver = tempoGameOver - 0.7*dt;
+            }
+            else{
+                estado = 3;
+            }
 
-          break;
-        case 5:
-          limparTela();
-          break;
-        default:
+            break;
+          case 5:
+            limparTela();
+            break;
+          default:
 
+        }
       }
-
       anterior = t;
       requestAnimationFrame(passo);
     }
@@ -266,15 +301,19 @@
           switch (e.keyCode) {
             case 37:
               player.ax = -100;
+              player.ligado = true;
               break;
             case 39:
               player.ax = +100;
+              player.ligado = true;
               break;
             case 38:
               player.ay = -400;
+              player.ligado = true;
               break;
             case 40:
               player.ay = +100;
+              player.ligado = true;
               break;
             case 27:      //Pressionar o Esq
               stateMainMenu = 0;
@@ -335,6 +374,9 @@
           player.ay = 0;
           break;
         default:
+      }
+      if(player.ax == 0 && player.ay == 0){
+        player.ligado = false;
       }
     });
 
